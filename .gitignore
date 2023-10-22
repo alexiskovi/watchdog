@@ -1,0 +1,5 @@
+*.yaml
+*pycache*
+*.log
+.*buffer
+.vscode

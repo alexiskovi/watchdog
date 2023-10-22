@@ -11,22 +11,27 @@ class Wordle:
         self.current_word = ''
 
         for hour in self.cfg['wordle']['time']:
-            new_word_time = datetime.time(hour=hour, minute=0, second=0, tzinfo=pytz.timezone('Europe/Budapest'))
+            new_word_time = datetime.time(hour=hour, minute=43, second=0, tzinfo=pytz.timezone('Europe/Budapest'))
             logging.info("Wordle update set at {}".format(new_word_time))
             app.job_queue.run_daily(self.update_word, new_word_time, days=(0, 1, 2, 3, 4, 5, 6))
     
     async def update_word(self, context):
         self.is_opened = False
-        chosen_word = random.randint(1, 51303)
-        with open('russian.txt', 'r') as file:
-            for i in range(chosen_word):
-                file.readline()
-            line = file.readline().split(':')
-            self.current_word = line[0]
-            self.definition = ''
-            for i in range(1, len(line)):
-                self.definition += line[i]
-            file.close()
+
+        self.current_word = ''
+        while len(self.current_word) < 4 or len(self.current_word) > 8: 
+            chosen_word = random.randint(1, 51303)
+            with open('russian.txt', 'r') as file:
+                for i in range(chosen_word):
+                    file.readline()
+                line = file.readline().split(':')
+                self.current_word = line[0]
+                self.definition = ''
+                for i in range(1, len(line)):
+                    self.definition += line[i]
+                file.close()
+        
+        self.current_word = self.current_word.replace('ё', 'е')
         
         word = 'Слово обновлено!\n'
         for _ in range(len(self.current_word)):
@@ -45,7 +50,7 @@ class Wordle:
             await update.message.reply_text(text)
             return
 
-        text = update.message.text
+        text = update.message.text.lower()
 
         if len(text) != len(self.current_word):
             await update.message.reply_text("Неверная длина слова")

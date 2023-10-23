@@ -88,6 +88,11 @@ class Handler:
         # Add message to the cleaner queue
         await self.cleaner.append_message(update)
 
+    async def print_leaderboard(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        text = ''
+        text += self.wordle.get_leaderboard()
+        await update.message.reply_text(text)
+
     def configure_handlers(self, app):
     #
     # Creating handlers for predefined events
@@ -96,8 +101,10 @@ class Handler:
         app.add_handler(CommandHandler("info", self.info.process_status))
         # Handler for cleaner status command
         app.add_handler(CommandHandler("cleaner_info", self.cleaner.process_status))
+        # Handler for leaderboard command
+        app.add_handler(CommandHandler("game_leaderboard", self.print_leaderboard))
         # Handler for all text messages except having urls
-        app.add_handler(MessageHandler(~filters.Entity('url'), self.process_text_message))      
+        app.add_handler(MessageHandler(~filters.Entity('url'), self.process_text_message))
 
 
 if __name__ == "__main__":

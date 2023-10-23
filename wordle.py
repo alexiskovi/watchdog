@@ -10,10 +10,41 @@ class Wordle:
         self.cfg = cfg
         self.current_word = ''
 
+        self.load_leaderboard()
+
         for hour in self.cfg['wordle']['time']:
-            new_word_time = datetime.time(hour=hour, minute=43, second=0, tzinfo=pytz.timezone('Europe/Budapest'))
+            new_word_time = datetime.time(hour=hour, minute=0, second=0, tzinfo=pytz.timezone('Europe/Budapest'))
             logging.info("Wordle update set at {}".format(new_word_time))
             app.job_queue.run_daily(self.update_word, new_word_time, days=(0, 1, 2, 3, 4, 5, 6))
+    
+    def save_leaderboard(self):
+        file = open('.wordle_leaderboard', 'w')
+        for i in self.leaderboard:
+            file.write('{} {}\n'.format(i, self.leaderboard[i]))
+        file.close()
+    
+    def load_leaderboard(self):
+        self.leaderboard = {}
+        try:
+            buf_file = open(".wordle_leaderboard", 'r')
+            lines = buf_file.readlines()
+            for line in lines:
+                username, score = line.split()
+                self.leaderboard[username] = int(score)
+            buf_file.close()
+            logging.info("Wordle leaderboard buffer loaded")
+        except:
+            open('.wordle_leaderboard', 'w').close()
+            logging.info("New wordle leaderboard buffer file created")
+    
+    def get_leaderboard(self):
+        res = ''
+        sorted_leaderboard = sorted(self.leaderboard.items(), key=lambda x:x[1], reverse=True)
+        k = 1
+        for i in sorted_leaderboard:
+            res += '{}. {}: {}\n'.format(k, i[0], i[1])
+            k += 1
+        return res
     
     async def update_word(self, context):
         self.is_opened = False
@@ -32,6 +63,8 @@ class Wordle:
                 file.close()
         
         self.current_word = self.current_word.replace('ё', 'е')
+
+        self.current_flags = [False for _ in range(len(self.current_word))]
         
         word = 'Слово обновлено!\n'
         for _ in range(len(self.current_word)):
@@ -71,11 +104,19 @@ class Wordle:
 
         game_over = True
         wcopy = self.current_word[:]
+        current_username = update.message.from_user.username
+
+        if current_username not in self.leaderboard:
+            self.leaderboard[current_username] = 0
+
         # Mark in-place letters
         for i in range(len(text)):
             if wcopy[i] == text[i]:
                 text = text[:i] + '🟩' + text[i + 1:]
                 wcopy = wcopy[:i] + '*' + wcopy[i + 1:]
+                if not self.current_flags[i]:
+                    self.current_flags[i] = True
+                    self.leaderboard[current_username] += 1
         # Find all wrong placed
         for i in range(len(text)):
             if text[i] in wcopy:
@@ -92,7 +133,10 @@ class Wordle:
         if game_over:
 
             text = 'Слово угадано!\n ✅ ' + self.current_word + '\n' + '❓ ' + self.definition
-            await update.message.reply_text(text)
-
+            self.leaderboard[current_username] += 1
             self.is_opened = True
             self.current_word = ''
+
+            self.save_leaderboard()
+
+            await update.message.reply_text(text)

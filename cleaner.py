@@ -40,7 +40,7 @@ class Cleaner:
     #
     # Method to check a thread_id and append message to removing queue
     #
-        if str(update.message.message_thread_id) not in self.cfg['exclude_thread_id']:
+        if str(update.message.message_thread_id) not in self.cfg['exclude_thread_id'] and update.message.forward_from == None:
             self.buf_file.write(str(update.message.chat_id) + ' ' + str(update.message.message_id) + '\n')
             self.clear_list.append((update.message.chat_id, update.message.message_id))
 

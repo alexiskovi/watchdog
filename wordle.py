@@ -61,8 +61,6 @@ class Wordle:
                 for i in range(1, len(line)):
                     self.definition += line[i]
                 file.close()
-        
-        self.current_word = self.current_word.replace('ё', 'е')
 
         self.current_flags = [False for _ in range(len(self.current_word))]
         

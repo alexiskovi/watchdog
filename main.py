@@ -40,7 +40,11 @@ class Handler:
         logging.getLogger("asyncio").setLevel(logging.WARNING)
         logging.getLogger("telegram").setLevel(logging.WARNING)
         
-        logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
+        logging.basicConfig(
+            encoding='utf-8',
+            format='%(asctime)s %(levelname)-8s %(message)s',
+            level=logging.DEBUG,
+            datefmt='%Y-%m-%d %H:%M:%S')
 
         logging.info("Launching watchdog bot...")
 

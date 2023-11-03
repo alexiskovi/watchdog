@@ -77,7 +77,7 @@ class Wordle:
         if self.current_word == '':
             text = "На данный момент нет загаданного слова! Новые будут в:\n"
             for i in self.cfg['wordle']['time']:
-                text += ('- ' + str(datetime.time(hour=i, minute=0, second=0, tzinfo=pytz.timezone('Europe/Budapest'))) + ' (UTC+02:00)\n')
+                text += ('- ' + str(datetime.time(hour=i, minute=0, second=0, tzinfo=pytz.timezone('Europe/Budapest'))) + ' (UTC+1)\n')
             await update.message.reply_text(text)
             return
 

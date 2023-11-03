@@ -21,7 +21,7 @@ class Info:
         logging.debug("Got command: INFO")
 
         info_msg = '🐶 Бот активен 🐶\n'
-        info_msg += ('Время последнего рестарта: ' + self.start_time + ' (UTC+2)\n\n')
+        info_msg += ('Время последнего рестарта: ' + self.start_time + ' (UTC+1)\n\n')
         info_msg += self.version_description()
         await update.message.reply_text(info_msg)
         logging.debug("Status sent")

@@ -69,7 +69,7 @@ class Handler:
             buf_file = open("tmp/.chat_list", 'r')
             lines = buf_file.readlines()
             for line in lines:
-                thread_id, thread_name, thread_clean_status = line.split()
+                thread_id, thread_name, thread_clean_status = line.split(';')
                 if thread_clean_status == 'True':
                     self.chat_list[thread_id] = [thread_name, True]
                 else:
